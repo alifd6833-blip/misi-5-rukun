@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi 5 Rukun</title>
+<style>
+:root{--navy:#17324d;--blue:#2d8fc5;--sky:#eaf7ff;--gold:#ffd166;--green:#218c62;--red:#c94c4c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--navy);background:linear-gradient(135deg,#dff5ff,#fff4d6);display:flex;align-items:center;justify-content:center;padding:18px}
+.app{width:min(760px,100%);background:#fff;border-radius:26px;padding:clamp(20px,4vw,36px);box-shadow:0 15px 40px #244b6725;border:4px solid #ffffff}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tag{background:#e6f5ff;color:#17658f;border-radius:30px;padding:8px 14px;font-weight:700;font-size:.88rem}
+h1{font-size:clamp(2rem,6vw,3.1rem);margin:18px 0 8px;color:#17658f;text-align:center}
+.subtitle{text-align:center;color:#557087;margin:0 0 22px;line-height:1.5}
+.mascot{font-size:3rem;text-align:center;margin:8px 0}
+.progress-wrap{height:12px;background:#e8eef3;border-radius:20px;overflow:hidden;margin:18px 0 8px}
+#progress{height:100%;width:0;background:linear-gradient(90deg,#42b6d9,#58c99a);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:#60788a;font-size:.92rem;font-weight:700}
+.question{font-size:clamp(1.25rem,3.7vw,1.7rem);line-height:1.4;text-align:center;margin:26px 0 20px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer{border:2px solid #d7e8f2;background:#f7fbff;color:#17324d;padding:16px 14px;border-radius:16px;font-size:1rem;font-weight:700;cursor:pointer;min-height:66px;transition:.15s}
+.answer:hover:not(:disabled){transform:translateY(-2px);border-color:#58b6df;background:#eef9ff}
+.answer:disabled{cursor:default;opacity:1}
+.answer.correct{background:#e4f8ed;border-color:#35a875;color:#176b49}
+.answer.wrong{background:#fff0ee;border-color:#df7770;color:#9c3333}
+.feedback{display:none;margin:18px 0 0;padding:15px 17px;border-radius:15px;line-height:1.5;background:#f1f7fb}
+.feedback.show{display:block}
+.feedback.good{background:#e7f8ee;color:#176b49}
+.feedback.bad{background:#fff1ef;color:#963d37}
+.actions{display:flex;justify-content:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.primary,.secondary{border:0;border-radius:30px;padding:13px 25px;font-size:1rem;font-weight:700;cursor:pointer}
+.primary{background:#218cba;color:#fff;box-shadow:0 5px 0 #176b91}
+.primary:hover{background:#176f9a}
+.secondary{background:#fff1c9;color:#76551a}
+.hidden{display:none!important}
+.result{text-align:center;padding:12px 0}
+.result .big{font-size:4rem;margin:8px}
+.result h2{font-size:2rem;margin:10px 0}
+.result p{line-height:1.6;color:#557087}
+.score{font-size:1.4rem;font-weight:800;color:#17658f;margin:14px}
+.footer{text-align:center;font-size:.8rem;color:#8294a1;margin-top:25px}
+@media(max-width:560px){.answers{grid-template-columns:1fr}.answer{min-height:56px}.app{padding:20px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <section id="startScreen">
+    <div class="top"><span class="tag">Pendidikan Islam • Tahun 4</span><span class="tag">Kuiz pantas</span></div>
+    <div class="mascot">🌙 ⭐ 🕌</div>
+    <h1>Misi 5 Rukun</h1>
+    <p class="subtitle">Sedia untuk menguji pengetahuan tentang Rukun Islam?<br>Jawab 10 soalan dan kumpulkan markah!</p>
+    <div class="actions"><button class="primary" id="startBtn">Mula</button></div>
+  </section>
+
+  <section id="quizScreen" class="hidden">
+    <div class="top"><span class="tag">🌟 Misi 5 Rukun</span><span class="tag" id="scoreTag">Skor: 0</span></div>
+    <div class="progress-wrap"><div id="progress"></div></div>
+    <div class="meta"><span id="questionCount">Soalan 1 / 10</span><span id="progressText">10% selesai</span></div>
+    <h2 class="question" id="questionText"></h2>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions"><button class="primary hidden" id="nextBtn">Soalan seterusnya</button></div>
+  </section>
+
+  <section id="resultScreen" class="hidden result">
+    <div class="mascot">🏆</div>
+    <h2 id="resultTitle">Misi selesai!</h2>
+    <div class="score" id="finalScore"></div>
+    <p id="resultMessage"></p>
+    <div class="actions"><button class="primary" id="restartBtn">Main semula</button></div>
+  </section>
+  <div class="footer">Belajar Rukun Islam sambil bermain ✨</div>
+</main>
+<script>
+const questions = [
+ {q:"Berapakah bilangan Rukun Islam?",a:["Tiga","Empat","Lima","Enam"],correct:2,why:"Rukun Islam mempunyai lima perkara.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Apakah Rukun Islam yang pertama?",a:["Mendirikan solat","Mengucap dua kalimah syahadah","Menunaikan zakat","Berpuasa"],correct:1,why:"Rukun Islam yang pertama ialah mengucap dua kalimah syahadah.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Apakah Rukun Islam yang kedua?",a:["Mendirikan solat","Menunaikan haji","Berpuasa Ramadan","Menunaikan zakat"],correct:0,why:"Rukun Islam yang kedua ialah mendirikan solat.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Apakah Rukun Islam yang ketiga?",a:["Berpuasa Ramadan","Menunaikan haji","Menunaikan zakat","Mengucap syahadah"],correct:2,why:"Rukun Islam yang ketiga ialah menunaikan zakat.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Apakah Rukun Islam yang keempat?",a:["Mendirikan solat","Berpuasa pada bulan Ramadan","Menunaikan haji","Menunaikan zakat"],correct:1,why:"Rukun Islam yang keempat ialah berpuasa pada bulan Ramadan.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Apakah Rukun Islam yang kelima?",a:["Menunaikan haji bagi yang berkemampuan","Membaca al-Quran","Bersedekah setiap hari","Mendirikan solat sunat"],correct:0,why:"Rukun Islam yang kelima ialah menunaikan haji bagi yang berkemampuan.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Siapakah nabi yang disebut dalam dua kalimah syahadah?",a:["Nabi Ibrahim AS","Nabi Musa AS","Nabi Isa AS","Nabi Muhammad SAW"],correct:3,why:"Dua kalimah syahadah menyatakan bahawa Nabi Muhammad SAW ialah pesuruh Allah.",source:"Hadis Riwayat al-Bukhari, No. 8."},
+ {q:"Di manakah umat Islam menunaikan ibadah haji?",a:["Madinah, Arab Saudi","Makkah, Arab Saudi","Kaherah, Mesir","Jerusalem"],correct:1,why:"Ibadah haji dilaksanakan di Makkah, Arab Saudi.",source:"Surah Ali ‘Imran, ayat 97."},
+ {q:"Rukun Islam manakah yang melibatkan pengeluaran sebahagian harta kepada golongan yang berhak?",a:["Solat","Puasa","Zakat","Haji"],correct:2,why:"Amalan mengeluarkan sebahagian harta kepada golongan yang berhak ialah menunaikan zakat.",source:"Surah At-Taubah, ayat 60."},
+ {q:"Siapakah sahabat yang meriwayatkan hadis tentang lima Rukun Islam?",a:["Abu Hurairah RA","Abdullah bin Umar RA","Anas bin Malik RA","Ali bin Abi Talib RA"],correct:1,why:"Hadis tentang lima Rukun Islam ini diriwayatkan oleh Abdullah bin Umar RA.",source:"Hadis Riwayat al-Bukhari, No. 8."}
+];
+let current=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function show(id){["startScreen","quizScreen","resultScreen"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
+function start(){current=0;score=0;show("quizScreen");renderQuestion()}
+function renderQuestion(){
+ answered=false;const item=questions[current];
+ $("questionCount").textContent=`Soalan ${current+1} / ${questions.length}`;
+ $("progressText").textContent=`${Math.round((current/questions.length)*100)}% selesai`;
+ $("progress").style.width=`${(current/questions.length)*100}%`;
+ $("scoreTag").textContent=`Skor: ${score}`;
+ $("questionText").textContent=item.q;
+ $("feedback").className="feedback";$("feedback").textContent="";
+ $("nextBtn").classList.add("hidden");$("nextBtn").textContent=current===questions.length-1?"Lihat keputusan":"Soalan seterusnya";
+ $("answers").innerHTML="";
+ item.a.forEach((answer,index)=>{
+  const button=document.createElement("button");button.className="answer";button.textContent=String.fromCharCode(65+index)+". "+answer;
+  button.addEventListener("click",()=>choose(index));$("answers").appendChild(button);
+ });
+}
+function choose(index){
+ if(answered)return;answered=true;const item=questions[current];const buttons=[...$("answers").children];buttons.forEach((b,i)=>{b.disabled=true;if(i===item.correct)b.classList.add("correct");else if(i===index)b.classList.add("wrong")});
+ const correct=index===item.correct;if(correct)score++;
+ const feedback=$("feedback");feedback.className="feedback show "+(correct?"good":"bad");
+ feedback.innerHTML=`<strong>${correct?"Betul! Hebat! 🌟":"Belum tepat. Teruskan usaha! 💪"}</strong><br>${item.why}<br><small><strong>Sumber:</strong> ${item.source}</small>`;
+ $("scoreTag").textContent=`Skor: ${score}`;$("nextBtn").classList.remove("hidden");
+ $("progressText").textContent=`${Math.round(((current+1)/questions.length)*100)}% selesai`;
+ $("progress").style.width=`${((current+1)/questions.length)*100}%`;
+}
+function next(){if(!answered)return;current++;if(current<questions.length)renderQuestion();else finish()}
+function finish(){
+ show("resultScreen");$("progress").style.width="100%";$("finalScore").textContent=`${score} / ${questions.length} markah`;
+ let message=score===10?"Cemerlang! Semua jawapan betul. Teruskan menuntut ilmu!":score>=7?"Bagus! Pengetahuan kamu tentang Rukun Islam semakin mantap.":score>=4?"Usaha yang baik! Cuba ulang kaji dan main semula.":"Jangan berputus asa. Ulang kaji Rukun Islam dan cuba lagi!";
+ $("resultTitle").textContent=score>=7?"Tahniah, misi berjaya!":"Misi selesai!";
+ $("resultMessage").textContent=message;
+}
+$("startBtn").addEventListener("click",start);$("nextBtn").addEventListener("click",next);$("restartBtn").addEventListener("click",start);
+</script>
+</body>
+</html>
